@@ -4,6 +4,8 @@ namespace Spatie\Sluggable;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Cocur\Slugify\Slugify;
+
 
 trait HasSlug
 {
@@ -81,12 +83,13 @@ trait HasSlug
     protected function generateNonUniqueSlug(): string
     {
         $slugField = $this->slugOptions->slugField;
-
         if ($this->hasCustomSlugBeenUsed() && ! empty($this->$slugField)) {
             return $this->$slugField;
         }
 
-        return Str::slug($this->getSlugSourceString(), $this->slugOptions->slugSeparator, $this->slugOptions->slugLanguage);
+        $slugify = new Slugify(['rulesets' => ['default', 'arabic']]);
+
+        return $slugify->slugify($this->getSlugSourceString(), $this->slugOptions->slugSeparator);
     }
 
     protected function hasCustomSlugBeenUsed(): bool
